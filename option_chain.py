@@ -1,28 +1,21 @@
 from datetime import datetime, timedelta
+import urllib.parse
 import requests
 
 API_BASE = "https://api.upstox.com/v2"
 
 
-def get_weekly_expiry():
-    today = datetime.now()
-    days_ahead = (1 - today.weekday()) % 7
-    expiry = today + timedelta(days=days_ahead)
-    return expiry
-
-
 def get_option_chain(access_token, expiry_date):
-    instrument_key = "NSE_INDEX|Nifty 50"
-    url = f"{API_BASE}/option/chain"
+    instrument_key = urllib.parse.quote("NSE_INDEX|Nifty 50", safe="")
+    expiry = expiry_date.strftime("%Y-%m-%d")
+    url = f"{API_BASE}/option/chain?instrument_key={instrument_key}&expiry_date={expiry}"
     headers = {
         "Accept": "application/json",
         "Authorization": f"Bearer {access_token}",
     }
-    params = {
-        "instrument_key": instrument_key,
-        "expiry_date": expiry_date.strftime("%Y-%m-%d"),
-    }
-    resp = requests.get(url, headers=headers, params=params, timeout=15)
+    resp = requests.get(url, headers=headers, timeout=15)
+    if resp.status_code == 401:
+        raise Exception(f"Access token expired or invalid (HTTP 401). Generate a new one in Upstox dashboard.")
     resp.raise_for_status()
     return resp.json()
 

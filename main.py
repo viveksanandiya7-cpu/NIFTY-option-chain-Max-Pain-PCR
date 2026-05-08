@@ -27,6 +27,16 @@ def main():
         print("Please fill in your ACCESS_TOKEN in settings.ini")
         sys.exit(1)
 
+    print("Testing API connectivity...")
+    import socket
+    try:
+        socket.gethostbyname("api.upstox.com")
+        print("  DNS resolution OK")
+    except Exception as e:
+        print(f"  DNS resolution FAILED: {e}")
+        print("  Check your internet connection or DNS settings")
+        sys.exit(1)
+
     access_token = settings["access_token"]
     cycle = 0
 
