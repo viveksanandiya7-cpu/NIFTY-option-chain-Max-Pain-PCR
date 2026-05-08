@@ -5,6 +5,13 @@ import requests
 API_BASE = "https://api.upstox.com/v2"
 
 
+def get_weekly_expiry():
+    today = datetime.now()
+    days_ahead = (1 - today.weekday()) % 7
+    expiry = today + timedelta(days=days_ahead)
+    return expiry
+
+
 def get_option_chain(access_token, expiry_date):
     instrument_key = urllib.parse.quote("NSE_INDEX|Nifty 50", safe="")
     expiry = expiry_date.strftime("%Y-%m-%d")
